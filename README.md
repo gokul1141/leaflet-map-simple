@@ -1,4 +1,3 @@
-# leaflet-map-simple
 <!DOCTYPE html>
 <html>
 <body>
