@@ -1,0 +1,266 @@
+<html>
+<head>
+<Title>Bhimeshwor Nagarpalika Population Web Map</Title>
+    <!--leaflet-->
+<link rel="stylesheet" href="leaflet/leaflet.css"/>
+<script src="leaflet/leaflet.js"></script>
+<script src="Data/bhimeshwor.geojson"></script>
+<script src="Data/dolkha.geojson"></script>
+<style type="text/css">
+.info {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+.info h4 {
+    margin: 0 0 5px;
+    color: 'black';
+}	
+
+.legend { background : white; line-height : 2}
+			.legend i { width : 4em; float : left }
+</style>
+</head>
+<body>
+	
+	
+	<div id="map" style="width: 100%; height: 600px"></div>
+	
+	<script>
+
+			var map = L.map('map').setView([27.41, 85.57],12);
+		
+		    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+var terrian = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
+    maxZoom: 20,
+    subdomains:['mt0','mt1','mt2','mt3']
+}).addTo(map);
+
+var street = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+    maxZoom: 20,
+    subdomains:['mt0','mt1','mt2','mt3']
+}).addTo(map);
+	
+		
+		
+		// for reset function we have to set var countries layer at the top
+		var bhimeshwor;
+
+	
+
+		
+		// for highlighting feature
+		
+				function highlightFeature(e) {
+    var layer = e.target;
+
+    layer.setStyle({
+        weight: 3,
+        color: 'black',
+        fillOpacity: 0.5
+    });
+    
+	    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront();
+    }
+     info.update(layer.feature.properties);
+}
+
+
+	
+	// function resect highlight
+function resetHighlight(e) {
+    bhimeshwor.resetStyle(e.target);
+     info.update();
+}	
+		
+			// function zoom feature	
+function zoomToFeature(e) {
+    map.fitBounds(e.target.getBounds());
+}
+		
+// we have to set on each feature of the layer
+function onEachFeature(feature, layer) {
+    layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        click: zoomToFeature
+    });
+}
+		
+		
+		
+		
+		
+		// clasifying the data accourding to population
+			function getdataColor(pop){
+				if(pop > 4000){
+					return 'red';
+				}else if(pop > 3000){
+					return 'blue';
+				}else{
+					return 'green';
+				}
+			}
+		
+		// styling the data layer
+		function style(feature) {
+    return {
+        fillColor: getdataColor(feature.properties.pop),
+        weight: 2,
+        opacity: 1,
+        color: 'black',
+        dashArray: '3',
+        fillOpacity: 0.7
+    };
+}
+
+
+			// adding geoJson Layaer
+	
+	var bhimeshwor = L.geoJSON(bhimeshwor, {style: style, onEachFeature: onEachFeature}).addTo(map);
+map.fitBounds(bhimeshwor.getBounds());
+	
+	
+// every thing for dolkha layer
+
+		var dolkha;
+		
+		// styling dolkha layer
+
+		function style1(feature) {
+    return {
+        fillColor: 'grey',
+        weight: 2,
+        opacity: 1,
+        color: 'black',
+        dashArray: '4',
+        fillOpacity: 0.1
+    };
+}
+
+
+
+		// for highlighting feature
+		
+				function highlightFeature(e) {
+    var layer = e.target;
+
+    layer.setStyle({
+		
+        weight: 4,
+        color: 'black',
+        fillOpacity: 0.5,
+    });
+    
+	    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront();
+    }
+     info.update(layer.feature.properties);
+}
+
+
+
+	// function resect highlight
+function resetHighlights
+(e) {
+    dolkha.resetStyle(e.target);
+     info.update();
+}	
+		
+		
+// we have to set on each feature of the layer
+function onEachFeature1(feature, layer) {
+    layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlights,
+        click: zoomToFeature
+    });
+}
+		
+		
+
+var dolkha = L.geoJSON(dolkha, {style: style1, onEachFeature: onEachFeature1}).addTo(map);
+
+	
+var baseMaps = {
+    "OSM": osm,
+    "Satellite view": terrian
+    
+};
+
+var overlayMaps = {
+    "dolkha District": dolkha
+
+};
+	
+	L.control.layers(baseMaps, overlayMaps, {position : 'bottomleft'}).addTo(map);
+
+
+
+// Adding custom control
+var info = L.control();
+
+info.onAdd = function (map) {
+    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+    this.update();
+    return this._div;
+};
+
+// method that we will use to update the control based on feature properties passed
+info.update = function (props) {
+    this._div.innerHTML = '<h4>Bhimeshwor Municipality<br>Population Data</h4>' +  (props ?
+        '<b>ward.No ' + props.W_NO  + '</b><br />' + props.pop + ' people <sup></sup>'
+        : 'Hover over a Ward');
+};
+
+info.addTo(map);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ // adding legend
+ var legend = L.control({position : 'bottomright'});
+			legend.onAdd = function(map){
+				var div = L.DomUtil.create('div', 'legend');
+				var labels = [
+					"Population greater than 4000", 
+					"Population greater than 3000", 
+					"Population equal or less than 3000"
+				];
+				var grades = [4001, 3001, 3000];
+				div.innerHTML = '<div><b>Legend</b></div>';
+				for(var i = 0; i < grades.length; i++){
+					div.innerHTML += '<i style="background:' 
+					+ getdataColor(grades[i]) + '">&nbsp;&nbsp;</i>&nbsp;&nbsp;'
+					+ labels[i] + '<br />';
+				}
+				return div;
+			}
+			legend.addTo(map);
+        
+        
+        
+        
+        
+	</script>
+	
+
+</body>
+</html>
